@@ -1,15 +1,17 @@
 import socket
 import json
+import random
 from phue import Bridge
 from collections import deque
-from time import sleep
+from time import sleep, time
 
 port = 4260
 host = ""
 currentSide = 0
 lowerThreshold = .6
 upperThreshold = 1.2
-shakeThreshold = 3
+shakeThreshold = 2
+shakeDelay = 1.5
 b = None # Bridge()
 on = False
 lights = None
@@ -20,9 +22,11 @@ fullBrightness = 254
 halfBrightness = 145
 brightness = 254
 
-xs = deque({0,0,0},3)
-ys = deque({0,0,0},3)
-zs = deque({0,0,0},3)
+lastshaketime = time()
+
+xs = deque({},5)
+ys = deque({},5)
+zs = deque({},5)
 
 def main(args):
     print("MoodCube Beta")
@@ -59,8 +63,29 @@ def main(args):
             x = jsond[0][2]
             y = jsond[0][3]
             z = jsond[0][4]
-            determineSide(x, y, z)
-            detectShake(x, y, z)
+
+            # if upperThreshold*-1 > x > upperThreshold or upperThreshold*-1 > y > upperThreshold or upperThreshold*-1 > z > upperThreshold:
+            # if  x > upperThreshold or x < upperThreshold * -1 or y > upperThreshold or y < upperThreshold*-1 or  z > upperThreshold or z < upperThreshold*-1:
+            if  abs(x) > upperThreshold or abs(y) > upperThreshold or  abs(z) > upperThreshold :
+                now = time()
+                # print(now - lastshaketime)
+                if now-lastshaketime > shakeDelay:
+                    detectShake(x, y, z)
+                # print("x: %f | y: %f | z: %f" % (x, y, z))
+                # print('ds')
+                # print(xs)
+                # print(ys)
+                # print(zs)
+
+            else:
+                # print('no ds')
+                #Clear shake-deques to ensure shakes must be concurrent
+                xs.clear()
+                ys.clear()
+                zs.clear()
+                determineSide(x, y, z)
+
+                # print("x: %f | y: %f | z: %f" % (x, y, z))
 
         elif 'GYRO' in jsond[0][0]:
             x = jsond[0][2]
@@ -121,113 +146,146 @@ def determineRotation(x,y,z):
 def determineSide(x, y, z):
     global currentSide,b,lights,lamp,on
 
-    if x < lowerThreshold * -1:
+    if -1 * upperThreshold < x < lowerThreshold * -1:
         if currentSide != 4:
             currentSide = 4
-            print("Side 4. Red.")
+            if lamp.on:
+                print("Side 4. Red.")
 
-            if not lamp.on:
-                lamp.on = True
+                # if not lamp.on:
+                #     lamp.on = True
 
-            lamp.xy = [.6,.3]
-            # lamp.brightness = fullBrightness
+                lamp.xy = [.6,.3]
+                # lamp.brightness = fullBrightness
 
-            if not lamp.effect is "none":
-            	lamp.effect = 'none'
+                if not lamp.effect is "none":
+                    lamp.effect = 'none'
 
-    elif x > lowerThreshold :
+    elif upperThreshold > x > lowerThreshold :
         if currentSide != 3:
             currentSide = 3
-            print("side 3. Colorloop.")
+            if lamp.on:
+                print("side 3. Colorloop.")
 
-            if not lamp.on:
-                lamp.on = True
+                # if not lamp.on:
+                #     lamp.on = True
 
-            lamp.effect = 'colorloop'
-            # lamp.brightness = fullBrightness
+                lamp.effect = 'colorloop'
+                # lamp.brightness = fullBrightness
 
 
-    elif y < lowerThreshold * -1:
+    elif -1 * upperThreshold <  y < lowerThreshold * -1:
         if currentSide != 6:
             currentSide = 6
-            print("Side 6. Blue.")
 
-            if not lamp.on:
-                lamp.on = True
+            # if not lamp.on:
+            #     lamp.on = True
+            if lamp.on:
+                print("Side 6. Blue.")
+                lamp.xy = [.1, .1]
+                # lamp.brightness = fullBrightness
 
-            lamp.xy = [.1, .1]
-            # lamp.brightness = fullBrightness
+                if not lamp.effect is "none":
+                    lamp.effect = 'none'
 
-            if not lamp.effect is "none":
-            	lamp.effect = 'none'
-
-    elif y > lowerThreshold :
+    elif upperThreshold > y > lowerThreshold :
         if currentSide != 1:
             currentSide = 1
-            print("Side 1. Yellow/Green.")
-            for l in lights:
-                if not l.on:
-                    l.on = True
+            # for l in lights:
+            #     if not l.on:
+            #         l.on = True
+
+            if lamp.on:
+                print("Side 1. Yellow/Green.")
+                for l in lights:
+                    l.xy = [.4,.55]
+                    # l.brightness = halfBrightness
+
+                if not lamp.effect is "none":
+                    lamp.effect = 'none'
 
 
-            for l in lights:
-                l.xy = [.4,.55]
-                # l.brightness = halfBrightness
-
-            if not lamp.effect is "none":
-            	lamp.effect = 'none'
-
-
-    elif z < lowerThreshold * -1:
+    elif -1 * upperThreshold <  z < lowerThreshold * -1:
         if currentSide != 5:
             currentSide = 5
-            print("Side 5. Turning all off.")
-            if not lamp.effect is "none":
-                lamp.effect = 'none'
-            for l in lights:
-                if l.on:
-                    l.on = False
+            # print("Side 5. Turning all off.")
+            if lamp.on:
+
+                print("Side 5. Random color.")
+                if not lamp.effect is "none":
+                    lamp.effect = 'none'
+                # for l in lights:
+                #     if l.on:
+                #         l.on = False
+                lamp.xy = [random.random(), random.random()]
 
 
-    elif z > lowerThreshold :
+    elif upperThreshold > z > lowerThreshold :
         if currentSide != 2:
             currentSide = 2
-            print("Side 2. Setting Bright light on both.")
-            for l in lights:
-                if not l.on:
-                    l.on = True
+            # for l in lights:
+            #     if not l.on:
+            #         l.on = True
+            if lamp.on:
+                print("Side 2. Setting Bright light on both.")
+                for l in lights:
+                    l.xy = normalLight
+                    # l.brightness = fullBrightness
 
-            for l in lights:
-                l.xy = normalLight
-                # l.brightness = fullBrightness
-
-            if not lamp.effect is "none":
-            	lamp.effect = 'none'
+                if not lamp.effect is "none":
+                    lamp.effect = 'none'
 
     return 0
 
 def detectShake(x, y, z):
-    global xs, ys, zs
+    global xs, ys, zs, lastshaketime
 
     xs.append(x)
     ys.append(y)
     zs.append(z)
 
-    thresholdCount = 0
+    ThresholdCount = 0
+    # yThresholdCount = 0
+    # zThresholdCount = 0
 
     for val in xs:
-        if val > upperThreshold:
-            thresholdCount += 1
+        if abs(val) > upperThreshold:
+            ThresholdCount += 1
 
     for val in ys:
-        if val > upperThreshold:
-            thresholdCount += 1
+        if abs(val) > upperThreshold:
+            ThresholdCount += 1
 
     for val in zs:
-        if val > upperThreshold:
-            thresholdCount += 1
+        if abs(val) > upperThreshold:
+            ThresholdCount += 1
 
-    print(thresholdCount)
+    # print(xThresholdCount)
+
+    # if xThresholdCount > shakeThreshold or yThresholdCount > shakeThreshold or zThresholdCount > shakeThreshold:
+    if ThresholdCount > shakeThreshold:
+        print("Shake detected!")
+
+
+
+        lastshaketime = time()
+        # print(lastshaketime)
+        print(ThresholdCount)
+        #Clear deques to avoid more immediate shakes
+        xs.clear()
+        ys.clear()
+        zs.clear()
+        # print(xs)
+        # print(ys)
+        # print(zs)
+
+        for light in lights:
+            if light.on:
+                light.on = False
+            else:
+                light.on = True
+
+        # sleep(1.5)
 
     return 0
 
