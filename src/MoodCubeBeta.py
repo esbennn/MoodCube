@@ -1,13 +1,15 @@
 import socket
 import json
 from phue import Bridge
-
+from collections import deque
 from time import sleep
 
 port = 4260
 host = ""
 currentSide = 0
-threshold = .6
+lowerThreshold = .6
+upperThreshold = 1.2
+shakeThreshold = 3
 b = None # Bridge()
 on = False
 lights = None
@@ -16,8 +18,11 @@ tv = None
 normalLight = [0.4596, 0.4105]
 fullBrightness = 254
 halfBrightness = 145
-
 brightness = 254
+
+xs = deque({0,0,0},3)
+ys = deque({0,0,0},3)
+zs = deque({0,0,0},3)
 
 def main(args):
     print("MoodCube Beta")
@@ -55,13 +60,14 @@ def main(args):
             y = jsond[0][3]
             z = jsond[0][4]
             determineSide(x, y, z)
-
+            detectShake(x, y, z)
 
         elif 'GYRO' in jsond[0][0]:
             x = jsond[0][2]
             y = jsond[0][3]
             z = jsond[0][4]
             determineRotation(x,y,z)
+
             # print("x: %f | y: %f | z: %f" % (x, y, z))
 
         # if len(jsond[5]) > 4:
@@ -115,7 +121,7 @@ def determineRotation(x,y,z):
 def determineSide(x, y, z):
     global currentSide,b,lights,lamp,on
 
-    if x < threshold * -1:
+    if x < lowerThreshold * -1:
         if currentSide != 4:
             currentSide = 4
             print("Side 4. Red.")
@@ -129,7 +135,7 @@ def determineSide(x, y, z):
             if not lamp.effect is "none":
             	lamp.effect = 'none'
 
-    elif x > threshold :
+    elif x > lowerThreshold :
         if currentSide != 3:
             currentSide = 3
             print("side 3. Colorloop.")
@@ -141,7 +147,7 @@ def determineSide(x, y, z):
             # lamp.brightness = fullBrightness
 
 
-    elif y < threshold * -1:
+    elif y < lowerThreshold * -1:
         if currentSide != 6:
             currentSide = 6
             print("Side 6. Blue.")
@@ -155,7 +161,7 @@ def determineSide(x, y, z):
             if not lamp.effect is "none":
             	lamp.effect = 'none'
 
-    elif y > threshold :
+    elif y > lowerThreshold :
         if currentSide != 1:
             currentSide = 1
             print("Side 1. Yellow/Green.")
@@ -172,7 +178,7 @@ def determineSide(x, y, z):
             	lamp.effect = 'none'
 
 
-    elif z < threshold * -1:
+    elif z < lowerThreshold * -1:
         if currentSide != 5:
             currentSide = 5
             print("Side 5. Turning all off.")
@@ -183,7 +189,7 @@ def determineSide(x, y, z):
                     l.on = False
 
 
-    elif z > threshold :
+    elif z > lowerThreshold :
         if currentSide != 2:
             currentSide = 2
             print("Side 2. Setting Bright light on both.")
@@ -200,6 +206,30 @@ def determineSide(x, y, z):
 
     return 0
 
+def detectShake(x, y, z):
+    global xs, ys, zs
+
+    xs.append(x)
+    ys.append(y)
+    zs.append(z)
+
+    thresholdCount = 0
+
+    for val in xs:
+        if val > upperThreshold:
+            thresholdCount += 1
+
+    for val in ys:
+        if val > upperThreshold:
+            thresholdCount += 1
+
+    for val in zs:
+        if val > upperThreshold:
+            thresholdCount += 1
+
+    print(thresholdCount)
+
+    return 0
 
 if __name__ == '__main__':
     import sys
