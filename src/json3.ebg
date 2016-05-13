@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<eventbus offsetX="0" offsetY="0" viewScale="1.0">
+	<filter_wrappers>
+		<filter_wrapper name="" filter="0" x="19.0" y="213.0" />
+		<filter_wrapper name="" filter="1" x="249.0" y="106.0" />
+		<filter_wrapper name="" filter="6" x="912.0" y="132.0" />
+		<filter_wrapper name="" filter="7" x="996.0" y="72.0" />
+		<filter_wrapper name="" filter="4" x="683.0" y="72.0" />
+		<filter_wrapper name="" filter="5" x="524.0" y="231.0" />
+		<filter_wrapper name="" filter="11" x="524.0" y="363.0" />
+		<filter_wrapper name="" filter="10" x="751.0" y="304.96875" />
+		<filter_wrapper name="" filter="8" x="1080.0" y="231.0" />
+		<filter_wrapper name="" filter="13" x="1177.0" y="460.0" />
+		<filter_wrapper name="" filter="12" x="996.0" y="363.0" />
+		<filter_wrapper name="" filter="14" x="1177.0" y="304.96875" dialogX="1033.0" dialogY="396.0" dialogWidth="600.0" dialogHeight="497.0" dialogVisible="false" />
+		<filter_wrapper name="" filter="3" x="249.0" y="321.0" />
+		<filter_wrapper name="" filter="2" x="162.0" y="503.0" />
+		<filter_wrapper name="" filter="9" x="751.0" y="460.0" dialogX="29.0" dialogY="583.0" dialogWidth="600.0" dialogHeight="497.0" dialogVisible="false" />
+	</filter_wrappers>
+	<filter_lookup>
+		<filter_savers>
+			<filter_saver id="0">
+				<filter class="dk.cavi.eventbus.domain.gadget.dulradio2.DULRadio2ReceiverFilter" enabled="true" passthrough="false">
+					<port name="ttyACM0" />
+					<radio channel="90" />
+					<sensors>
+						<sensor id="-38:-23:-19:-46:-46:47" identifier="DUL" powerLevel="HIGH" subChannel="1" sleepInterval="MS_60">
+							<analog threshold="0.0" sensor0="PORT_DISABLED" sensor1="PORT_DISABLED" sensor2="PORT_DISABLED" sensor3="PORT_DISABLED" />
+							<digital sleepEnabled="false" sensor0="PORT_DISABLED" sensor1="PORT_DISABLED" sensor2="PORT_DISABLED" sensor3="PORT_DISABLED" />
+							<platform channelCheckInterval="5000" accelerometer="ENABLED_2G" gyroscope="ENABLED_250DS" debug="DISABLED" updateInterval="9000" sendInterval="10000" />
+							<thresholds accelerometer="0.1" timeout="2000" />
+						</sensor>
+					</sensors>
+				</filter>
+			</filter_saver>
+			<filter_saver id="1">
+				<filter class="dk.cavi.eventbus.domain.gadget.dulradio2.converters.DULRadio2ToSpatial3DConverter" enabled="true" passthrough="false">
+					<settings type="ACCELEROMETER" />
+				</filter>
+			</filter_saver>
+			<filter_saver id="2">
+				<filter class="dk.cavi.eventbus.domain.gadget.dulradio2.DULRadio2Debugger" enabled="false" passthrough="false">
+				</filter>
+			</filter_saver>
+			<filter_saver id="3">
+				<filter class="dk.cavi.eventbus.domain.gadget.dulradio2.converters.DULRadio2ToSpatial3DConverter" enabled="true" passthrough="false">
+					<settings type="GYROSCOPE" />
+				</filter>
+			</filter_saver>
+			<filter_saver id="4">
+				<filter class="dk.cavi.eventbus.domain.protocol.tuio.converters.SpatialToTUIOUDPConverter" enabled="false" passthrough="false">
+					<times liveMode="false" minFrequency="1000" maxFrequency="10" dropDelay="1000" />
+					<scaling inputScaling="false" clamping="false" minX="0.0" minY="0.0" maxX="1.0" maxY="1.0" />
+					<space eulerOrder="ZXY" />
+				</filter>
+			</filter_saver>
+			<filter_saver id="5">
+				<filter class="dk.cavi.eventbus.domain.logic.IdRenamerFilter" enabled="true" passthrough="false">
+					<patterns>
+						<pattern search="DUL" replace="ACCEL" />
+					</patterns>
+				</filter>
+			</filter_saver>
+			<filter_saver id="6">
+				<filter class="dk.cavi.eventbus.domain.protocol.osc.converters.UDPToOSCFilter" enabled="false" passthrough="false">
+					<settings checkAddress="false" />
+				</filter>
+			</filter_saver>
+			<filter_saver id="7">
+				<filter class="dk.cavi.eventbus.domain.protocol.json.converters.OSCToJSONConverterFilter" enabled="false" passthrough="false">
+				</filter>
+			</filter_saver>
+			<filter_saver id="8">
+				<filter class="dk.cavi.eventbus.domain.protocol.udp.UDPSendFilter" enabled="false" passthrough="false">
+					<net port="4260" hostname="127.0.0.1" />
+				</filter>
+			</filter_saver>
+			<filter_saver id="9">
+				<filter class="dk.cavi.eventbus.domain.debug.FrameDebugFilter" enabled="false" passthrough="false">
+				</filter>
+			</filter_saver>
+			<filter_saver id="10">
+				<filter class="dk.cavi.eventbus.domain.protocol.osc.converters.Spatial3DToOSCConverterFilter" enabled="true" passthrough="false">
+					<paths pos="/EventBus/Spatial3D/" rotpos="/EventBus/RotationSpatial3D/" />
+				</filter>
+			</filter_saver>
+			<filter_saver id="11">
+				<filter class="dk.cavi.eventbus.domain.logic.IdRenamerFilter" enabled="true" passthrough="false">
+					<patterns>
+						<pattern search="DUL" replace="GYRO" />
+					</patterns>
+				</filter>
+			</filter_saver>
+			<filter_saver id="12">
+				<filter class="dk.cavi.eventbus.domain.protocol.json.converters.OSCToJSONConverterFilter" enabled="true" passthrough="false">
+				</filter>
+			</filter_saver>
+			<filter_saver id="13">
+				<filter class="dk.cavi.eventbus.domain.protocol.udp.UDPSendFilter" enabled="true" passthrough="false">
+					<net port="4260" hostname="127.0.0.1" />
+				</filter>
+			</filter_saver>
+			<filter_saver id="14">
+				<filter class="dk.cavi.eventbus.domain.debug.JSONDebugFilter" enabled="true" passthrough="false">
+				</filter>
+			</filter_saver>
+		</filter_savers>
+		<filter_connections>
+			<filter_connection out="0" in="1" />
+			<filter_connection out="0" in="2" />
+			<filter_connection out="0" in="3" />
+			<filter_connection out="1" in="4" />
+			<filter_connection out="1" in="5" />
+			<filter_connection out="6" in="7" />
+			<filter_connection out="7" in="8" />
+			<filter_connection out="4" in="6" />
+			<filter_connection out="5" in="9" />
+			<filter_connection out="5" in="10" />
+			<filter_connection out="11" in="9" />
+			<filter_connection out="11" in="10" />
+			<filter_connection out="10" in="12" />
+			<filter_connection out="12" in="13" />
+			<filter_connection out="12" in="14" />
+			<filter_connection out="3" in="11" />
+		</filter_connections>
+	</filter_lookup>
+	<selections>
+	</selections>
+</eventbus>

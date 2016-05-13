@@ -21,8 +21,10 @@ normalLight = [0.4596, 0.4105]
 fullBrightness = 254
 halfBrightness = 145
 brightness = 254
+brightnessdelay = .2
 
 lastshaketime = time()
+lastbrightnesschange = time()
 
 xs = deque({},5)
 ys = deque({},5)
@@ -57,6 +59,7 @@ def main(args):
         # print(jsond)
         # print(jsond[0][0])
 
+        now = time()
 
         #
         if 'ACCEL' in jsond[0][0]:
@@ -67,7 +70,7 @@ def main(args):
             # if upperThreshold*-1 > x > upperThreshold or upperThreshold*-1 > y > upperThreshold or upperThreshold*-1 > z > upperThreshold:
             # if  x > upperThreshold or x < upperThreshold * -1 or y > upperThreshold or y < upperThreshold*-1 or  z > upperThreshold or z < upperThreshold*-1:
             if  abs(x) > upperThreshold or abs(y) > upperThreshold or  abs(z) > upperThreshold :
-                now = time()
+
                 # print(now - lastshaketime)
                 if now-lastshaketime > shakeDelay:
                     detectShake(x, y, z)
@@ -83,15 +86,17 @@ def main(args):
                 xs.clear()
                 ys.clear()
                 zs.clear()
-                determineSide(x, y, z)
+            determineSide(x, y, z)
 
                 # print("x: %f | y: %f | z: %f" % (x, y, z))
 
         elif 'GYRO' in jsond[0][0]:
-            x = jsond[0][2]
-            y = jsond[0][3]
-            z = jsond[0][4]
-            determineRotation(x,y,z)
+            if now - lastbrightnesschange > brightnessdelay:
+
+                x = jsond[0][2]
+                y = jsond[0][3]
+                z = jsond[0][4]
+                determineRotation(x,y,z)
 
             # print("x: %f | y: %f | z: %f" % (x, y, z))
 
@@ -108,7 +113,7 @@ def main(args):
     return 0
 
 def determineRotation(x,y,z):
-    global brightness
+    global brightness, lastbrightnesschange
     value = 0
 
     if currentSide is 2:
@@ -126,7 +131,7 @@ def determineRotation(x,y,z):
 
     # print(value)
     if value > 25 or value < -25:
-        diff = value / 10
+        diff = value / 5
         if lamp.on and 255 > lamp.brightness + diff > 0:
             print("Altering brightness...")
             # print(diff)
@@ -136,9 +141,12 @@ def determineRotation(x,y,z):
             # print(brightness)
             # lamp.brightness = brightness
             lamp.brightness = int(currentbrightness + diff)
+
+            lastbrightnesschange = time()
             # lamp.brightness = lamp.brightness + diff
 
             # lamp.brightness += diff
+            # sleep()
 
 
     return 0
