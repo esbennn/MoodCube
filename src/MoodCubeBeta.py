@@ -164,11 +164,12 @@ def determineSide(x, y, z):
                 # if not lamp.on:
                 #     lamp.on = True
 
-                lamp.xy = [.6,.3]
                 # lamp.brightness = fullBrightness
 
                 if not lamp.effect is "none":
                     lamp.effect = 'none'
+
+                lamp.xy = [.6,.3]
 
     elif upperThreshold > x > lowerThreshold :
 
@@ -192,11 +193,12 @@ def determineSide(x, y, z):
                 currentSide = 6
 
                 print("Side 6. Blue.")
-                lamp.xy = [.1, .1]
                 # lamp.brightness = fullBrightness
 
                 if not lamp.effect is "none":
                     lamp.effect = 'none'
+
+                lamp.xy = [.1, .1]
 
     elif upperThreshold > y > lowerThreshold :
 
@@ -208,13 +210,14 @@ def determineSide(x, y, z):
             if currentSide != 1:
                 currentSide = 1
                 print("Side 1. Yellow/Green.")
-                for l in lights:
-                    l.xy = [.4,.55]
+
                     # l.brightness = halfBrightness
 
                 if not lamp.effect is "none":
                     lamp.effect = 'none'
 
+                for l in lights:
+                    l.xy = [.4, .55]
 
     elif -1 * upperThreshold <  z < lowerThreshold * -1:
 
@@ -240,12 +243,14 @@ def determineSide(x, y, z):
             if currentSide != 2:
                 currentSide = 2
                 print("Side 2. Setting Bright light on both.")
-                for l in lights:
-                    l.xy = normalLight
-                    # l.brightness = fullBrightness
+
 
                 if not lamp.effect is "none":
                     lamp.effect = 'none'
+
+                for l in lights:
+                    l.xy = normalLight
+                    # l.brightness = fullBrightness
 
     return 0
 
