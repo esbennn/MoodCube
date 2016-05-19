@@ -1,0 +1,13 @@
+#!/bin/sh
+
+touch spawner.log
+
+while true; do
+  TIMESTAMP=`date '+%D %T'`
+  echo "*** HueSpawner restarting at $TIMESTAMP ***" >> spawner.log
+#  python3 MoodCube.py
+  python3 MoodCubeBeta.py
+  echo EXIT STATUS WAS $? >> spawner.log
+done
+
+exit 0
