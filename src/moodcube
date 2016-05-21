@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#change dir
+cd prototypebeta
+
+#launch eventbus
+screen -dm -S eventbus  bash -c 'java -jar EventBus.jar -open json3.ebg --headless; exec sh'
+
+#launc python code 
+#screen -dm -S python bash -c 'python3 MoodCubeBeta.py; exec sh'
+screen -dm -S spawner bash -c './spawner; exec sh'
