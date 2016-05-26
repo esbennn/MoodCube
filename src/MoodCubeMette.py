@@ -1,6 +1,8 @@
 import socket
 import json
 import random
+from datetime import datetime
+
 from phue import Bridge
 from collections import deque
 from time import sleep, time
@@ -47,13 +49,6 @@ def main(args):
     dinner = lights[0]
     sofa = lights[1]
     window = lights[2]
-    # tv = lights[1]
-
-    for l in lights:
-        l.on = False
-        # l.on = True
-
-    # brightness = lamp.brightness
 
     #Setup UDP socket to receive data from the EventBus
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -65,10 +60,6 @@ def main(args):
     while True:
         data, addr = s.recvfrom(1024)
         jsond = json.loads(str(data, 'utf-8'))
-        # print (jsond[5])
-
-        # print(jsond)
-        # print(jsond[0][0])
 
         now = time()
 
@@ -78,28 +69,18 @@ def main(args):
             y = jsond[0][3]
             z = jsond[0][4]
 
-            # if upperThreshold*-1 > x > upperThreshold or upperThreshold*-1 > y > upperThreshold or upperThreshold*-1 > z > upperThreshold:
-            # if  x > upperThreshold or x < upperThreshold * -1 or y > upperThreshold or y < upperThreshold*-1 or  z > upperThreshold or z < upperThreshold*-1:
             if  abs(x) > upperThreshold or abs(y) > upperThreshold or  abs(z) > upperThreshold :
 
-                # print(now - lastshaketime)
                 if now-lastshaketime > shakeDelay:
                     detectShake(x, y, z)
-                # print("x: %f | y: %f | z: %f" % (x, y, z))
-                # print('ds')
-                # print(xs)
-                # print(ys)
-                # print(zs)
 
             else:
-                # print('no ds')
                 #Clear shake-deques to ensure shakes must be concurrent
                 xs.clear()
                 ys.clear()
                 zs.clear()
             determineSide(x, y, z)
 
-                # print("x: %f | y: %f | z: %f" % (x, y, z))
 
         elif 'GYRO' in jsond[0][0]:
             if now - lastbrightnesschange > brightnessdelay:
@@ -110,14 +91,6 @@ def main(args):
                 determineRotation(x,y,z)
 
             # print("x: %f | y: %f | z: %f" % (x, y, z))
-
-        # if len(jsond[5]) > 4:
-
-            # x = jsond[5][3]
-            # y = jsond[5][4]
-            # z = jsond[5][5]
-            # print("x: %f | y: %f | z: %f" % (x,y,z))
-            # determineSide(x,y,z)
         else :
             print('Inactive')
 
@@ -166,12 +139,6 @@ def determineSide(x, y, z):
 
             sideFour()
 
-        # for l in lights:
-        #         if not l.effect is "none":
-        #             l.effect = "none"
-        #
-        #         l.xy = normalLight
-
 
     elif upperThreshold > x > lowerThreshold :
 
@@ -180,32 +147,13 @@ def determineSide(x, y, z):
             print("Side 3. Alle lamper. Normalt lys.")
 
             sideThree()
-        # if lamp.on:
-        #
-        #
-        #         # if not lamp.on:
-        #         #     lamp.on = True
-        #
-        #         lamp.effect = 'colorloop'
-                # lamp.brightness = fullBrightness
-
 
     elif -1 * upperThreshold <  y < lowerThreshold * -1:
-        #     lamp.on = True
-        # if not lamp.on:
         if currentSide != 6:
             currentSide = 6
             print("Side 6. Sofa og window. Random.")
 
             sideSix()
-        # if lamp.on:
-        #
-        #         # lamp.brightness = fullBrightness
-        #
-        #         if not lamp.effect is "none":
-        #             lamp.effect = "none"
-        #
-        #         lamp.xy = [.1, .1]
 
     elif upperThreshold > y > lowerThreshold :
 
@@ -214,16 +162,6 @@ def determineSide(x, y, z):
             print("Side 1. Alle. Random.")
 
             sideOne()
-        # if lamp.on:
-        #
-        #
-        #             # l.brightness = halfBrightness
-        #
-        #         if not lamp.effect is "none":
-        #             lamp.effect = "none"
-        #
-        #         for l in lights:
-        #             l.xy = [.4, .55]
 
     elif -1 * upperThreshold <  z < lowerThreshold * -1:
 
@@ -232,7 +170,6 @@ def determineSide(x, y, z):
             print("Side 5. Sofa and window. Colorloop.")
 
             sideFive()
-
 
     elif upperThreshold > z > lowerThreshold :
         if currentSide != 2:
@@ -282,14 +219,11 @@ def sideSix():
 def sideTwo():
     global on, sofa, window, dinner
     if on:
-        # r = [random.random(), random.random()]
         for l in lights:
             if not l.on :
                 l.on = True
             l.effect = 'none'
-            # sleep(.1)
             l.xy = normalLight
-            # sleep(.1)
             l.effect = 'colorloop'
 
     return 0
@@ -319,7 +253,6 @@ def sideThree():
         for l in lights:
             if not l.on:
                 l.on = True
-            # if not l.effect is "none":
             l.effect = "none"
 
             l.xy = normalLight
@@ -344,10 +277,6 @@ def sideFour():
             dinner.on = False
     return 0
 
-
-
-
-
 def detectShake(x, y, z):
     global xs, ys, zs, lastshaketime, on
 
@@ -356,8 +285,6 @@ def detectShake(x, y, z):
     zs.append(z)
 
     ThresholdCount = 0
-    # yThresholdCount = 0
-    # zThresholdCount = 0
 
     for val in xs:
         if abs(val) > upperThreshold:
@@ -371,24 +298,18 @@ def detectShake(x, y, z):
         if abs(val) > upperThreshold:
             ThresholdCount += 1
 
-    # print(xThresholdCount)
-
-    # if xThresholdCount > shakeThreshold or yThresholdCount > shakeThreshold or zThresholdCount > shakeThreshold:
     if ThresholdCount > shakeThreshold:
         print("Shake detected!")
 
 
 
         lastshaketime = time()
-        # print(lastshaketime)
         print(ThresholdCount)
+
         #Clear deques to avoid more immediate shakes
         xs.clear()
         ys.clear()
         zs.clear()
-        # print(xs)
-        # print(ys)
-        # print(zs)
 
         if on:
             on = False
@@ -410,17 +331,25 @@ def detectShake(x, y, z):
         else:
             sideSix()
 
-        # for light in lights:
-        #     if light.on:
-        #         light.on = False
-        #     else:
-        #         light.on = True
-
-        # sleep(1.5)
 
     return 0
 
+class F:
+    nl = True
+    def write(self, x):
+        timestamp = datetime.now().strftime('%a %b %d. @ %H:%M:%S')
+        if x == '\n':
+            old_f.write(x)
+            self.nl = True
+        elif self.nl:
+            old_f.write("[%s] " % str(timestamp) + x)
+            self.nl = False
+        else:
+            old_f.write(x)
+
 if __name__ == '__main__':
     import sys
+    old_f = sys.stdout
+    sys.stdout = F()
     sys.exit(main(sys.argv))
 

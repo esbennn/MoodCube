@@ -1,6 +1,8 @@
 import socket
 import json
 import random
+from datetime import datetime
+
 from phue import Bridge
 from collections import deque
 from time import sleep, time
@@ -40,7 +42,7 @@ def main(args):
 
     lights = list(b.lights)
     lamp = lights[0]
-    # tv = lights[1]
+    tv = lights[1]
 
     brightness = lamp.brightness
 
@@ -306,7 +308,29 @@ def detectShake(x, y, z):
 
     return 0
 
+
+class F:
+    nl = True
+    def write(self, x):
+        timestamp = datetime.now().strftime('%a %b %d. @ %H:%M:%S')
+        # old_f.write("[%s]:" % str(timestamp) + x)
+        if x == '\n':
+            old_f.write(x)
+            self.nl = True
+        elif self.nl:
+            old_f.write("[%s] " % str(timestamp) + x)
+            self.nl = False
+        else:
+            old_f.write(x)
+
+
 if __name__ == '__main__':
     import sys
+    old_f = sys.stdout
+    sys.stdout = F()
     sys.exit(main(sys.argv))
+
+
+
+
 
