@@ -38,7 +38,7 @@ ys = deque({},5)
 zs = deque({},5)
 
 def main(args):
-    print("MoodCube Beta")
+    print("MoodCube Beta Mette")
 
     #Setup bridge
     global b, lights, sofa, dinner, window
