@@ -336,15 +336,20 @@ def detectShake(x, y, z):
 class F:
     nl = True
     def write(self, x):
+        file = open('log.txt', 'a')
         timestamp = datetime.now().strftime('%a %b %d. @ %H:%M:%S')
         if x == '\n':
             old_f.write(x)
+            file.write(x)
             self.nl = True
         elif self.nl:
             old_f.write("[%s] " % str(timestamp) + x)
+            file.write("[%s] " % str(timestamp) + x)
             self.nl = False
         else:
             old_f.write(x)
+            file.write(x)
+        file.close()
 
 if __name__ == '__main__':
     import sys

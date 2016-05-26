@@ -37,14 +37,14 @@ def main(args):
 
     #Setup bridge
     global b, lights, lamp, tv, brightness
-    b = Bridge('192.168.0.102')
-    #b.connect()
-
-    lights = list(b.lights)
-    lamp = lights[0]
-    tv = lights[1]
-
-    brightness = lamp.brightness
+    # b = Bridge('192.168.0.102')
+    # #b.connect()
+    #
+    # lights = list(b.lights)
+    # lamp = lights[0]
+    # tv = lights[1]
+    #
+    # brightness = lamp.brightness
 
     #Setup UDP socket to receive data from the EventBus
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -312,16 +312,20 @@ def detectShake(x, y, z):
 class F:
     nl = True
     def write(self, x):
+        file = open('log.txt', 'a')
         timestamp = datetime.now().strftime('%a %b %d. @ %H:%M:%S')
-        # old_f.write("[%s]:" % str(timestamp) + x)
         if x == '\n':
             old_f.write(x)
+            file.write(x)
             self.nl = True
         elif self.nl:
             old_f.write("[%s] " % str(timestamp) + x)
+            file.write("[%s] " % str(timestamp) + x)
             self.nl = False
         else:
             old_f.write(x)
+            file.write(x)
+        file.close()
 
 
 if __name__ == '__main__':
