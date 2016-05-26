@@ -307,10 +307,9 @@ def detectShake(x, y, z):
             ThresholdCount += 1
 
     if ThresholdCount > shakeThreshold:
-        print("Shake detected!")
 
         lastshaketime = time()
-        print(ThresholdCount)
+        # print(ThresholdCount)
 
         #Clear deques to avoid more immediate shakes
         xs.clear()
@@ -323,6 +322,8 @@ def detectShake(x, y, z):
                 l.on = False
         else:
             on = True
+
+        print("Shake detected! On: %s" % (on))
 
         if currentSide is 1:
             sideOne()
