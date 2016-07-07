@@ -1,0 +1,17 @@
+#!/bin/sh
+
+touch spawner.log
+
+while true; do
+  TIMESTAMP=`date '+%D %T'`
+  echo "*** HueSpawner restarting at $TIMESTAMP ***" >> spawner.log
+#  python3 MoodCube.py
+#  python3 MoodCubeBeta.py
+  python3 OfficeFun.py
+  echo EXIT STATUS WAS $? >> spawner.log
+#If it failed, it was probably to to connectivity. Trying to connect again.
+  sudo nmcli connection up id Ethernet\ connection\ 1
+
+done
+
+exit 0
